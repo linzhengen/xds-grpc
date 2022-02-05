@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: helloworld-client
+  name: helloworld-client
+  namespace: helloworld
+spec:
+  selector:
+    app: helloworld-client
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 18080
+      targetPort: 18080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: helloworld-server
+  name: helloworld-server
+  namespace: helloworld
+spec:
+  selector:
+    app: helloworld-server
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-client
+  namespace: helloworld
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: helloworld-client
+  template:
+    metadata:
+      labels:
+        app: helloworld-client
+    spec:
+      containers:
+        - image: helloworld-client
+          imagePullPolicy: Always
+          name: http
+          ports:
+            - containerPort: 18080
+              protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-server
+  namespace: helloworld
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: helloworld-server
+  template:
+    metadata:
+      annotations:
+        inject.istio.io/templates: grpc-agent
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
+      labels:
+        app: helloworld-server
+    spec:
+      containers:
+        - image: helloworld-server
+          imagePullPolicy: Always
+          name: grpc
+          ports:
+            - containerPort: 50051
+              protocol: TCP
