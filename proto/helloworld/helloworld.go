@@ -1,2 +1,16 @@
-//go:generate protoc --go_out=. --go_opt paths=source_relative --go-grpc_out=. --go-grpc_opt paths=source_relative --go-grpc_opt require_unimplemented_servers=false ./helloworld.proto
 package helloworld
+
+import (
+	"context"
+	"log"
+)
+
+type Server struct {
+	UnimplementedGreeterServer
+	ServerName string
+}
+
+func (s *Server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
+	log.Printf("Received: %v", in.GetName())
+	return &HelloReply{Message: "Hello " + in.GetName() + ", from " + s.ServerName}, nil
+}
