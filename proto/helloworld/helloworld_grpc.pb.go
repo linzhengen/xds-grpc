@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.3
-// source: helloworld.proto
+// source: helloworld/helloworld.proto
 
 package helloworld
 
@@ -43,19 +43,21 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
 }
 
 // GreeterServer is the server API for Greeter service.
-// All implementations should embed UnimplementedGreeterServer
+// All implementations must embed UnimplementedGreeterServer
 // for forward compatibility
 type GreeterServer interface {
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	mustEmbedUnimplementedGreeterServer()
 }
 
-// UnimplementedGreeterServer should be embedded to have forward compatible implementations.
+// UnimplementedGreeterServer must be embedded to have forward compatible implementations.
 type UnimplementedGreeterServer struct {
 }
 
 func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
 }
+func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 
 // UnsafeGreeterServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to GreeterServer will
@@ -99,5 +101,5 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "helloworld.proto",
+	Metadata: "helloworld/helloworld.proto",
 }
